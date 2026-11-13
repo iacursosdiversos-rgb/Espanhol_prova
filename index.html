@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espanhol Express - Foco na Prova</title>
+<style>
+:root {
+--bg-main: #f8f9fa;
+--bg-card: #ffffff;
+--primary: #d97706;
+--primary-light: #fef3c7;
+--secondary: #1e293b;
+--text-main: #334155;
+--text-muted: #64748b;
+--success: #10b981;
+--error: #ef4444;
+--border: #e2e8f0;
+}
+@media (prefers-color-scheme: dark) {
+:root {
+--bg-main: #12161c;
+--bg-card: #1b212a;
+--primary: #f59e0b;
+--primary-light: #3a2a0c;
+--secondary: #f1f5f9;
+--text-main: #d6dde6;
+--text-muted: #94a3b8;
+--border: #2c3542;
+}
+.quiz-option.correct { background: #0f3b2c !important; color: #a7f3d0 !important; }
+.quiz-option.wrong { background: #45191b !important; color: #fecaca !important; }
+.msg.ai { background: var(--bg-card) !important; }
+}
+
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+background-color: var(--bg-main);
+color: var(--text-main);
+padding-bottom: 80px;
+}
+
+header {
+background-color: var(--bg-card);
+border-bottom: 1px solid var(--border);
+padding: 15px 20px;
+position: sticky;
+top: 0;
+z-index: 100;
+box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+
+.nav-tabs {
+display: flex;
+gap: 10px;
+overflow-x: auto;
+max-width: 800px;
+margin: 0 auto;
+scrollbar-width: none;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+background: none;
+border: 1px solid var(--border);
+padding: 8px 16px;
+border-radius: 20px;
+cursor: pointer;
+font-weight: 600;
+color: var(--text-muted);
+white-space: nowrap;
+transition: all 0.2s;
+}
+
+.tab-btn.active {
+background-color: var(--primary);
+color: white;
+border-color: var(--primary);
+}
+
+.container {
+max-width: 800px;
+margin: 25px auto;
+padding: 0 16px;
+}
+
+.section {
+display: none;
+}
+
+.section.active {
+display: block;
+animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(5px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: 16px;
+padding: 20px;
+margin-bottom: 20px;
+box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+h1 { font-size: 1.5rem; color: var(--secondary); margin-bottom: 8px; }
+h2 { font-size: 1.2rem; color: var(--secondary); margin-bottom: 12px; }
+h3 { font-size: 1rem; color: var(--secondary); margin: 14px 0 6px; }
+p { line-height: 1.6; margin-bottom: 12px; }
+
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+gap: 12px;
+margin-top: 15px;
+}
+
+.stat-box {
+background: var(--bg-main);
+padding: 15px;
+border-radius: 12px;
+border: 1px solid var(--border);
+text-align: center;
+}
+
+.stat-number {
+font-size: 1.5rem;
+font-weight: bold;
+color: var(--primary);
+}
+
+.progress-bar-bg {
+width: 100%;
+height: 10px;
+background: var(--border);
+border-radius: 5px;
+overflow: hidden;
+margin: 10px 0;
+}
+
+.progress-bar-fill {
+height: 100%;
+background: var(--primary);
+width: 0%;
+transition: width 0.4s ease;
+}
+
+.module-item {
+border-left: 4px solid var(--primary);
+padding-left: 15px;
+margin-bottom: 20px;
+}
+
+.btn {
+background-color: var(--primary);
+color: white;
+border: none;
+padding: 10px 18px;
+border-radius: 8px;
+font-weight: 600;
+cursor: pointer;
+transition: opacity 0.2s;
+font-size: 0.95rem;
+}
+
+.btn:hover { opacity: 0.9; }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn-outline {
+background: none;
+border: 1px solid var(--primary);
+color: var(--primary);
+}
+.btn-outline.done {
+background: var(--success);
+border-color: var(--success);
+color: white;
+}
+
+.quiz-option {
+display: block;
+width: 100%;
+text-align: left;
+padding: 12px 15px;
+margin-bottom: 10px;
+border: 1px solid var(--border);
+border-radius: 10px;
+background: var(--bg-main);
+color: var(--text-main);
+cursor: pointer;
+font-size: 1rem;
+}
+
+.quiz-option:hover { border-color: var(--primary); }
+.quiz-option:disabled { cursor: default; }
+.quiz-option.correct { background: #d1fae5; border-color: var(--success); color: #065f46; }
+.quiz-option.wrong { background: #fee2e2; border-color: var(--error); color: #991b1b; }
+
+.dict-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 12px 0;
+border-bottom: 1px solid var(--border);
+gap: 10px;
+}
+.dict-item:last-child { border-bottom: none; }
+
+.chat-box {
+height: 320px;
+overflow-y: auto;
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 15px;
+background: var(--bg-main);
+margin-bottom: 15px;
+}
+
+.msg {
+margin-bottom: 12px;
+padding: 10px 14px;
+border-radius: 12px;
+max-width: 85%;
+word-wrap: break-word;
+white-space: pre-wrap;
+line-height: 1.5;
+}
+
+.msg.user {
+background: var(--primary);
+color: white;
+margin-left: auto;
+}
+
+.msg.ai {
+background: white;
+border: 1px solid var(--border);
+}
+
+.input-group {
+display: flex;
+gap: 10px;
+}
+
+input[type="text"], input[type="password"] {
+flex: 1;
+padding: 10px 14px;
+border: 1px solid var(--border);
+border-radius: 8px;
+font-size: 1rem;
+min-width: 0;
+background: var(--bg-card);
+color: var(--text-main);
+}
+
+.badge {
+background: var(--primary-light);
+color: var(--primary);
+padding: 3px 8px;
+border-radius: 6px;
+font-size: 0.8rem;
+font-weight: bold;
+}
+
+table.tab {
+width: 100%;
+border-collapse: collapse;
+font-size: 0.95rem;
+margin: 6px 0 12px;
+}
+table.tab th, table.tab td {
+border: 1px solid var(--border);
+padding: 7px 8px;
+text-align: left;
+}
+table.tab th { background: var(--primary-light); color: var(--secondary); }
+.tab-wrap { overflow-x: auto; }
+
+.tip {
+background: var(--primary-light);
+border-radius: 10px;
+padding: 10px 12px;
+margin: 8px 0 12px;
+font-size: 0.95rem;
+line-height: 1.5;
+}
+
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.chip {
+border: 1px solid var(--border);
+background: var(--bg-card);
+color: var(--text-main);
+border-radius: 20px;
+padding: 6px 12px;
+font-size: 0.9rem;
+cursor: pointer;
+}
+.chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+.play {
+flex-shrink: 0;
+width: 40px;
+height: 40px;
+border-radius: 50%;
+border: 1px solid var(--primary);
+background: none;
+color: var(--primary);
+font-size: 1rem;
+cursor: pointer;
+}
+.small { font-size: 0.85rem; color: var(--text-muted); }
+.explain { font-size: 0.95rem; margin-top: 4px; padding: 10px 12px; border-radius: 10px; background: var(--bg-main); border: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<header>
+<div class="nav-tabs">
+<button class="tab-btn active" onclick="showTab('inicio', this)">🏠 Início</button>
+<button class="tab-btn" onclick="showTab('modulos', this)">📚 Revisão</button>
+<button class="tab-btn" onclick="showTab('simulado', this)">✍️ Simulado</button>
+<button class="tab-btn" onclick="showTab('dicionario', this)">🔊 Pronúncia</button>
+<button class="tab-btn" onclick="showTab('tutor', this)">🤖 Tutor IA</button>
+</div>
+</header>
+
+<div class="container">
+
+<!-- ================= INÍCIO ================= -->
+<div id="inicio" class="section active">
+<div class="card">
+<h1>¡Hola! Vamos gabaritar quarta-feira! 🇪🇸</h1>
+<p>Seu plano intensivo de revisão está pronto. Avance pelos módulos e teste seus conhecimentos no simulado.</p>
+
+<div style="margin-top: 15px;">
+<div style="display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: bold;">
+<span>Progresso Geral</span>
+<span id="progress-text">0%</span>
+</div>
+<div class="progress-bar-bg">
+<div class="progress-bar-fill" id="progress-bar"></div>
+</div>
+</div>
+
+<div class="stats-grid">
+<div class="stat-box">
+<div class="stat-number" id="stat-modules">0/4</div>
+<div style="font-size: 0.85rem; color: var(--text-muted);">Módulos Concluídos</div>
+</div>
+<div class="stat-box">
+<div class="stat-number" id="stat-quiz">0</div>
+<div style="font-size: 0.85rem; color: var(--text-muted);">Acertos no Simulado</div>
+</div>
+<div class="stat-box">
+<div class="stat-number">Quarta</div>
+<div style="font-size: 0.85rem; color: var(--text-muted);">Dia da Prova</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>💡 Dica de Ouro para a Prova</h2>
+<p>Cuidado com os <strong>Falsos Cognatos</strong> (palavras parecidas com o português, mas com sentido oposto). Exemplo: <em>"Embarazada"</em> não significa envergonhada, significa <strong>grávida</strong>!</p>
+<button class="btn" onclick="showTab('modulos', document.querySelectorAll('.tab-btn')[1])">Começar Revisão Agora →</button>
+</div>
+
+<div class="card">
+<h2>🗓️ Plano até a prova</h2>
+<p class="small" style="margin-bottom:8px">Um pouquinho por dia rende mais do que tudo na véspera.</p>
+<p>• <strong>Dia 1:</strong> Módulos 1 e 2 + 1ª rodada do simulado.<br>
+• <strong>Dia 2:</strong> Módulos 3 e 4 + pronúncia das palavras difíceis.<br>
+• <strong>Dia 3:</strong> Refazer o simulado e reler só o que errou.<br>
+• <strong>Véspera:</strong> Revisar os falsos cognatos e dormir cedo. 😴</p>
+<button class="btn btn-outline" onclick="resetAll()">Zerar meu progresso</button>
+</div>
+</div>
+
+<!-- ================= MÓDULOS ================= -->
+<div id="modulos" class="section">
+<div class="card">
+<h1>📚 Módulos de Revisão Intensiva</h1>
+<p>Leia os resumos essenciais e marque como concluído para atualizar sua meta.</p>
+</div>
+
+<div class="card module-item">
+<span class="badge">Módulo 1</span>
+<h2>Artigos e Contrações (O que mais cai)</h2>
+<p>• <strong>Artigos definidos:</strong> El (o), La (a), Los (os), Las (as).<br>
+• <strong>Neutro "Lo":</strong> Nunca acompanha substantivo! Usado antes de adjetivos (ex: <em>Lo importante es estudiar</em>).<br>
+• <strong>Contrações:</strong> Só existem duas no espanhol: <strong>Al</strong> (a + el) e <strong>Del</strong> (de + el).</p>
+<h3>Artigos indefinidos</h3>
+<p>Un (um), Una (uma), Unos (uns), Unas (umas).</p>
+<div class="tip">⚠️ <strong>Pegadinha:</strong> antes de palavra feminina que começa com <strong>A ou HA tônico</strong> usa-se <strong>EL</strong> para soar melhor: <em>el agua, el águila, el hambre</em>. Mas a palavra continua feminina: <em>el agua fría</em>.</div>
+<p>• "a + la", "de + la", "a + los" <strong>não</strong> se contraem: <em>Voy a la playa. Vengo de los Estados Unidos.</em><br>
+• Com nome próprio que tem artigo, também não: <em>Voy a El Salvador.</em></p>
+<button class="btn btn-outline" data-mod="1" onclick="completeModule(1, this)">Marcar como concluído</button>
+</div>
+
+<div class="card module-item">
+<span class="badge">Módulo 2</span>
+<h2>Verbos Essenciais no Presente</h2>
+<p>Os verbos regulares seguem 3 modelos. Troque só a terminação:</p>
+<div class="tab-wrap">
+<table class="tab">
+<tr><th>Pessoa</th><th>HABLAR (-ar)</th><th>COMER (-er)</th><th>VIVIR (-ir)</th></tr>
+<tr><td>Yo</td><td>habl<b>o</b></td><td>com<b>o</b></td><td>viv<b>o</b></td></tr>
+<tr><td>Tú</td><td>habl<b>as</b></td><td>com<b>es</b></td><td>viv<b>es</b></td></tr>
+<tr><td>Él / Ella / Usted</td><td>habl<b>a</b></td><td>com<b>e</b></td><td>viv<b>e</b></td></tr>
+<tr><td>Nosotros/as</td><td>habl<b>amos</b></td><td>com<b>emos</b></td><td>viv<b>imos</b></td></tr>
+<tr><td>Vosotros/as</td><td>habl<b>áis</b></td><td>com<b>éis</b></td><td>viv<b>ís</b></td></tr>
+<tr><td>Ellos / Ellas / Ustedes</td><td>habl<b>an</b></td><td>com<b>en</b></td><td>viv<b>en</b></td></tr>
+</table>
+</div>
+<h3>Os irregulares que mais caem</h3>
+<div class="tab-wrap">
+<table class="tab">
+<tr><th></th><th>SER</th><th>ESTAR</th><th>TENER</th><th>IR</th><th>HACER</th></tr>
+<tr><td>Yo</td><td>soy</td><td>estoy</td><td>tengo</td><td>voy</td><td>hago</td></tr>
+<tr><td>Tú</td><td>eres</td><td>estás</td><td>tienes</td><td>vas</td><td>haces</td></tr>
+<tr><td>Él/Ella</td><td>es</td><td>está</td><td>tiene</td><td>va</td><td>hace</td></tr>
+<tr><td>Nosotros</td><td>somos</td><td>estamos</td><td>tenemos</td><td>vamos</td><td>hacemos</td></tr>
+<tr><td>Vosotros</td><td>sois</td><td>estáis</td><td>tenéis</td><td>vais</td><td>hacéis</td></tr>
+<tr><td>Ellos</td><td>son</td><td>están</td><td>tienen</td><td>van</td><td>hacen</td></tr>
+</table>
+</div>
+<p>• <strong>SER</strong> = características permanentes, profissão, origem, hora (<em>Soy brasileña. Son las tres.</em>).<br>
+• <strong>ESTAR</strong> = estado passageiro e localização (<em>Estoy cansada. La escuela está cerca.</em>).<br>
+• <strong>Ditongo:</strong> alguns verbos trocam a vogal no presente, menos em nosotros/vosotros: <em>querer → quiero, poder → puedo, pedir → pido</em>.</p>
+<div class="tip">💡 <strong>GUSTAR</strong> funciona ao contrário: <em>Me gusta el chocolate</em> (uma coisa) / <em>Me gustan los libros</em> (várias). O verbo concorda com o que se gosta!</div>
+<button class="btn btn-outline" data-mod="2" onclick="completeModule(2, this)">Marcar como concluído</button>
+</div>
+
+<div class="card module-item">
+<span class="badge">Módulo 3</span>
+<h2>Falsos Cognatos e Heterogenéricos</h2>
+<p>As palavras que mais derrubam brasileiros na prova:</p>
+<div class="tab-wrap">
+<table class="tab">
+<tr><th>Espanhol</th><th>Significa</th><th>NÃO é</th></tr>
+<tr><td>Embarazada</td><td>Grávida</td><td>Envergonhada</td></tr>
+<tr><td>Exquisito</td><td>Delicioso</td><td>Esquisito</td></tr>
+<tr><td>Oficina</td><td>Escritório</td><td>Oficina mecânica (= taller)</td></tr>
+<tr><td>Rato</td><td>Momento, instante</td><td>Rato (= ratón)</td></tr>
+<tr><td>Polvo</td><td>Pó, poeira</td><td>Polvo (= pulpo)</td></tr>
+<tr><td>Borrar</td><td>Apagar</td><td>Borrar</td></tr>
+<tr><td>Largo</td><td>Comprido</td><td>Largo (= ancho)</td></tr>
+<tr><td>Apellido</td><td>Sobrenome</td><td>Apelido (= apodo)</td></tr>
+<tr><td>Cena</td><td>Jantar</td><td>Cena de filme (= escena)</td></tr>
+<tr><td>Vaso</td><td>Copo</td><td>Vaso de flor (= florero/maceta)</td></tr>
+<tr><td>Todavía</td><td>Ainda</td><td>Todavia (= sin embargo)</td></tr>
+<tr><td>Zurdo</td><td>Canhoto</td><td>Surdo (= sordo)</td></tr>
+<tr><td>Cachorro</td><td>Filhote</td><td>Cachorro (= perro)</td></tr>
+<tr><td>Pelado</td><td>Careca</td><td>Pelado/nu (= desnudo)</td></tr>
+<tr><td>Acordarse</td><td>Lembrar-se</td><td>Acordar (= despertar)</td></tr>
+<tr><td>Jubilado</td><td>Aposentado</td><td>Jubilado/alegre</td></tr>
+</table>
+</div>
+<h3>Heterogenéricos (gênero diferente do português)</h3>
+<p>• Masculinos em espanhol: <strong>el</strong> viaje, <strong>el</strong> puente, <strong>el</strong> árbol, <strong>el</strong> color, <strong>el</strong> dolor, <strong>el</strong> origen, <strong>el</strong> equipo.<br>
+• Femininos em espanhol: <strong>la</strong> leche, <strong>la</strong> nariz, <strong>la</strong> sal, <strong>la</strong> sangre, <strong>la</strong> costumbre, <strong>la</strong> miel.</p>
+<div class="tip">💡 Truque: palavras terminadas em <strong>-aje</strong> são masculinas (el viaje, el garaje, el paisaje, el mensaje).</div>
+<button class="btn btn-outline" data-mod="3" onclick="completeModule(3, this)">Marcar como concluído</button>
+</div>
+
+<div class="card module-item">
+<span class="badge">Módulo 4</span>
+<h2>Muy x Mucho, Pronomes e Interpretação</h2>
+<p>• <strong>MUY</strong> antes de adjetivo e advérbio: <em>muy bonita, muy rápido</em>.<br>
+• <strong>MUCHO</strong> antes de substantivo e depois de verbo: <em>mucho dinero, trabaja mucho</em>.<br>
+• Exceções: <em>mucho mejor, mucho peor, mucho mayor, mucho menor, mucho más, mucho menos</em>.</p>
+<h3>Pronomes</h3>
+<p>• <strong>Usted / Ustedes</strong> = forma de respeito (senhor/senhora), conjuga como ele/eles: <em>¿Usted habla español?</em><br>
+• Possessivos antes do nome: <em>mi, tu, su</em> (mi casa). Depois do nome: <em>mío, tuyo, suyo</em> (la casa es mía).</p>
+<h3>Conectores que mudam o sentido do texto</h3>
+<div class="tab-wrap">
+<table class="tab">
+<tr><th>Espanhol</th><th>Português</th></tr>
+<tr><td>Sin embargo</td><td>No entanto, porém</td></tr>
+<tr><td>Aunque</td><td>Embora, mesmo que</td></tr>
+<tr><td>Además</td><td>Além disso</td></tr>
+<tr><td>Por lo tanto</td><td>Portanto</td></tr>
+<tr><td>Mientras</td><td>Enquanto</td></tr>
+<tr><td>Sino</td><td>Mas sim (depois de negação)</td></tr>
+<tr><td>Pues</td><td>Pois, então</td></tr>
+</table>
+</div>
+<div class="tip">🎯 <strong>Interpretação:</strong> leia as perguntas ANTES do texto, sublinhe os conectores e desconfie da alternativa que copia uma frase do texto trocando uma palavrinha.</div>
+<button class="btn btn-outline" data-mod="4" onclick="completeModule(4, this)">Marcar como concluído</button>
+</div>
+</div>
+
+<!-- ================= SIMULADO ================= -->
+<div id="simulado" class="section">
+<div class="card">
+<h1>✍️ Simulado</h1>
+<p>15 questões no estilo da prova. Toque na alternativa: a explicação aparece na hora.</p>
+<div class="progress-bar-bg"><div class="progress-bar-fill" id="quiz-bar"></div></div>
+<p class="small" id="quiz-status"></p>
+</div>
+<div class="card" id="quiz-card"></div>
+</div>
+
+<!-- ================= PRONÚNCIA ================= -->
+<div id="dicionario" class="section">
+<div class="card">
+<h1>🔊 Pronúncia</h1>
+<p>Toque no ▶ para ouvir. Repita em voz alta 3 vezes.</p>
+<div class="chips" id="dict-filter"></div>
+<p class="small" id="voz-aviso"></p>
+<div id="dict-list"></div>
+</div>
+<div class="card">
+<h2>Regras rápidas de som</h2>
+<p>• <strong>H</strong> é muda: <em>hola</em> = "ola".<br>
+• <strong>J</strong> e <strong>G</strong> antes de E/I têm som de "rr" forte, raspado: <em>jamón, gente</em>.<br>
+• <strong>LL</strong> e <strong>Y</strong> soam como "j" suave ou "i": <em>llamar, yo</em>.<br>
+• <strong>Ñ</strong> = "nh": <em>España</em>.<br>
+• <strong>Z</strong> (e C antes de E/I) na Espanha soa como "th" inglês; na América Latina, como "s".<br>
+• <strong>V</strong> soa quase como <strong>B</strong>: <em>vaca</em> ≈ "baca".</p>
+</div>
+</div>
+
+<!-- ================= TUTOR ================= -->
+<div id="tutor" class="section">
+<div class="card">
+<h1>🤖 Tutor IA</h1>
+<p class="small">Tire dúvidas de espanhol em português. Sem senha, o tutor responde no modo offline (pelas regras dos módulos).</p>
+<div class="chips" id="tutor-sugestoes"></div>
+<div class="chat-box" id="chat-box"></div>
+<div class="input-group">
+<input type="text" id="chat-input" placeholder="Ex: qual a diferença entre muy e mucho?" onkeydown="if(event.key==='Enter') sendChat()">
+<button class="btn" id="chat-send" onclick="sendChat()">Enviar</button>
+</div>
+<p style="margin-top:14px"><a href="#" onclick="toggleKey();return false" class="small">⚙️ IA on-line (senha)</a></p>
+<div id="key-box" style="display:none; margin-top:8px">
+<div class="input-group">
+<input type="password" id="api-key" placeholder="Senha do site (a mesma do curso de inglês)">
+<button class="btn btn-outline" onclick="saveKey()">Salvar</button>
+</div>
+<p class="small" id="key-status" style="margin-top:6px"></p>
+</div>
+</div>
+</div>
+
+</div>
+
+<script>
+/* ---------- estado salvo no aparelho ---------- */
+const KEY = 'espanhol-express-v1';
+let st = load();
+function load() {
+  try { return Object.assign({ mods: [], quiz: {}, }, JSON.parse(localStorage.getItem(KEY) || '{}')); }
+  catch (e) { return { mods: [], quiz: {} }; }
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
+
+/* ---------- abas ---------- */
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'simulado') renderQuiz();
+}
+
+/* ---------- progresso ---------- */
+function completeModule(n, btn) {
+  if (st.mods.includes(n)) st.mods = st.mods.filter(x => x !== n);
+  else st.mods.push(n);
+  save(); updateStats();
+}
+function updateStats() {
+  const acertos = Object.values(st.quiz).filter(v => v.ok).length;
+  const respondidas = Object.keys(st.quiz).length;
+  document.getElementById('stat-modules').textContent = st.mods.length + '/4';
+  document.getElementById('stat-quiz').textContent = acertos + '/' + QUIZ.length;
+  const p = Math.round((st.mods.length / 4) * 60 + (respondidas / QUIZ.length) * 40);
+  document.getElementById('progress-text').textContent = p + '%';
+  document.getElementById('progress-bar').style.width = p + '%';
+  document.querySelectorAll('[data-mod]').forEach(b => {
+    const done = st.mods.includes(Number(b.dataset.mod));
+    b.classList.toggle('done', done);
+    b.textContent = done ? '✓ Concluído (tocar para desfazer)' : 'Marcar como concluído';
+  });
+}
+function resetAll() {
+  if (!confirm('Zerar módulos e simulado?')) return;
+  st = { mods: [], quiz: {} }; save(); updateStats(); renderQuiz();
+}
+
+/* ---------- simulado ---------- */
+const QUIZ = [
+  { q: '"Mi hermana está embarazada." O que significa?', o: ['Minha irmã está envergonhada', 'Minha irmã está grávida', 'Minha irmã está embaraçada', 'Minha irmã está atrasada'], c: 1, e: 'Embarazada = grávida. Envergonhada em espanhol é "avergonzada".' },
+  { q: 'Complete: "___ agua está fría."', o: ['La', 'Lo', 'El', 'Los'], c: 2, e: 'Agua é feminina, mas começa com A tônico: usa-se EL (el agua). O adjetivo continua feminino: fría.' },
+  { q: 'Complete: "Voy ___ cine con mis amigos."', o: ['a el', 'al', 'a lo', 'en el'], c: 1, e: 'A + EL = AL. É uma das duas únicas contrações do espanhol (al e del).' },
+  { q: 'Complete: "___ importante es no rendirse."', o: ['El', 'La', 'Lo', 'Los'], c: 2, e: '"Lo" é o artigo neutro: vem antes de adjetivo, nunca de substantivo.' },
+  { q: 'Qual frase está correta?', o: ['Ella es muy cansada.', 'Ella está muy cansada.', 'Ella está mucho cansada.', 'Ella es mucho cansada.'], c: 1, e: 'Cansaço é estado passageiro (ESTAR) e antes de adjetivo usa-se MUY.' },
+  { q: 'Complete: "Me ___ las películas de terror."', o: ['gusta', 'gusto', 'gustan', 'gustas'], c: 2, e: 'Gustar concorda com o que se gosta: "las películas" é plural, então "gustan".' },
+  { q: 'Conjugação de TENER para "yo":', o: ['teno', 'tiengo', 'tengo', 'tieno'], c: 2, e: 'Yo tengo, tú tienes, él tiene, nosotros tenemos.' },
+  { q: '"Trabajo en una oficina." Onde a pessoa trabalha?', o: ['Numa oficina mecânica', 'Num escritório', 'Numa fábrica', 'Numa loja'], c: 1, e: 'Oficina = escritório. Oficina mecânica em espanhol é "taller".' },
+  { q: 'Complete: "Tengo ___ amigos en Madrid."', o: ['muy', 'muchos', 'mucho', 'muchas'], c: 1, e: 'Antes de substantivo usa-se MUCHO concordando: amigos (masc. plural) → muchos.' },
+  { q: 'Qual palavra é MASCULINA em espanhol?', o: ['leche', 'nariz', 'viaje', 'sal'], c: 2, e: 'El viaje (palavras em -aje são masculinas). La leche, la nariz, la sal são femininas.' },
+  { q: '"Espérame un rato." Significa:', o: ['Espere um rato', 'Espere um momento', 'Espere no quarto', 'Espere amanhã'], c: 1, e: 'Rato = momento, instante. O animal rato é "ratón".' },
+  { q: '"Quería salir; sin embargo, llovía mucho." O conector indica:', o: ['Causa', 'Adição', 'Oposição', 'Conclusão'], c: 2, e: 'Sin embargo = no entanto, porém. Indica oposição (contraste).' },
+  { q: 'Complete: "Nosotros ___ de Brasil."', o: ['estamos', 'somos', 'son', 'sois'], c: 1, e: 'Origem usa SER: nosotros somos.' },
+  { q: '"¿Cuál es tu apellido?" Estão perguntando o seu:', o: ['Apelido', 'Sobrenome', 'Endereço', 'Telefone'], c: 1, e: 'Apellido = sobrenome. Apelido em espanhol é "apodo".' },
+  { q: 'Complete com a forma de respeito: "¿___ habla inglés, señora?"', o: ['Tú', 'Usted', 'Vosotros', 'Ella'], c: 1, e: 'Usted é a forma de respeito (senhora/senhor) e conjuga como ele/ela: usted habla.' },
+];
+let qIdx = 0;
+function renderQuiz() {
+  const card = document.getElementById('quiz-card');
+  const respondidas = Object.keys(st.quiz).length;
+  const acertos = Object.values(st.quiz).filter(v => v.ok).length;
+  document.getElementById('quiz-bar').style.width = (respondidas / QUIZ.length * 100) + '%';
+  document.getElementById('quiz-status').textContent = respondidas + ' de ' + QUIZ.length + ' respondidas · ' + acertos + ' acertos';
+  if (respondidas >= QUIZ.length && qIdx >= QUIZ.length) {
+    const nota = Math.round(acertos / QUIZ.length * 10 * 10) / 10;
+    const erradas = QUIZ.map((q, i) => ({ q, i })).filter(x => st.quiz[x.i] && !st.quiz[x.i].ok);
+    card.innerHTML = '<h2>Resultado: ' + acertos + '/' + QUIZ.length + ' (nota ' + String(nota).replace('.', ',') + ')</h2>' +
+      '<p>' + (acertos >= 13 ? '¡Excelente! Você está pronta para a prova. 🏆' : acertos >= 9 ? '¡Muy bien! Revise só as que errou. 💪' : 'Sem problema: releia os módulos e refaça. Vai dar certo! 🌱') + '</p>' +
+      (erradas.length ? '<h3>Para revisar</h3>' + erradas.map(x => '<div class="explain"><b>' + esc(x.q.q) + '</b><br>✔ ' + esc(x.q.o[x.q.c]) + '<br><span class="small">' + esc(x.q.e) + '</span></div>').join('') : '') +
+      '<p style="margin-top:14px"><button class="btn" onclick="refazer(false)">Refazer tudo</button> ' +
+      (erradas.length ? '<button class="btn btn-outline" onclick="refazer(true)">Refazer só as erradas</button>' : '') + '</p>';
+    updateStats(); return;
+  }
+  while (qIdx < QUIZ.length && st.quiz[qIdx]) qIdx++;
+  if (qIdx >= QUIZ.length) { renderQuiz(); return; }
+  const q = QUIZ[qIdx];
+  card.innerHTML = '<span class="badge">Questão ' + (qIdx + 1) + ' de ' + QUIZ.length + '</span><h2 style="margin-top:10px">' + esc(q.q) + '</h2>' +
+    q.o.map((o, i) => '<button class="quiz-option" onclick="answer(' + i + ')">' + String.fromCharCode(65 + i) + ') ' + esc(o) + '</button>').join('') +
+    '<div id="quiz-exp"></div>';
+}
+function answer(i) {
+  const q = QUIZ[qIdx]; const ok = i === q.c;
+  st.quiz[qIdx] = { ok, r: i }; save();
+  document.querySelectorAll('#quiz-card .quiz-option').forEach((b, j) => {
+    b.disabled = true;
+    if (j === q.c) b.classList.add('correct');
+    else if (j === i) b.classList.add('wrong');
+  });
+  document.getElementById('quiz-exp').innerHTML = '<div class="explain">' + (ok ? '✅ <b>¡Correcto!</b> ' : '❌ <b>Quase!</b> ') + esc(q.e) + '</div>' +
+    '<p style="margin-top:12px"><button class="btn" onclick="nextQ()">' + (qIdx + 1 < QUIZ.length ? 'Próxima →' : 'Ver resultado') + '</button></p>';
+  updateStats();
+}
+function nextQ() { qIdx++; renderQuiz(); window.scrollTo(0, 0); }
+function refazer(soErradas) {
+  if (soErradas) Object.keys(st.quiz).forEach(k => { if (!st.quiz[k].ok) delete st.quiz[k]; });
+  else st.quiz = {};
+  qIdx = 0; save(); renderQuiz();
+}
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+/* ---------- pronúncia ---------- */
+const DICT = [
+  ['falsos', 'Embarazada', 'grávida'], ['falsos', 'Exquisito', 'delicioso'], ['falsos', 'Oficina', 'escritório'], ['falsos', 'Apellido', 'sobrenome'],
+  ['falsos', 'Todavía', 'ainda'], ['falsos', 'Zurdo', 'canhoto'], ['falsos', 'Borrar', 'apagar'], ['falsos', 'Rato', 'momento'],
+  ['verbos', 'Yo tengo', 'eu tenho'], ['verbos', 'Nosotros somos', 'nós somos'], ['verbos', 'Ellos están', 'eles estão'], ['verbos', 'Me gustan los libros', 'eu gosto dos livros'],
+  ['verbos', 'Quiero aprender', 'quero aprender'], ['verbos', 'Hacemos la tarea', 'fazemos a lição'],
+  ['frases', '¿Cómo te llamas?', 'como você se chama?'], ['frases', 'Mucho gusto', 'muito prazer'], ['frases', '¿Dónde está el baño?', 'onde fica o banheiro?'],
+  ['frases', 'No entiendo, ¿puede repetir?', 'não entendo, pode repetir?'], ['frases', 'Hasta luego', 'até logo'], ['frases', 'Lo siento mucho', 'sinto muito'],
+  ['sons', 'Jamón', 'presunto (J raspado)'], ['sons', 'Llave', 'chave (LL)'], ['sons', 'España', 'Espanha (Ñ)'], ['sons', 'Hola', 'olá (H mudo)'],
+  ['sons', 'Perro', 'cachorro (RR forte)'], ['sons', 'Zapato', 'sapato (Z)'],
+];
+const FILTROS = [['todos', 'Todas'], ['falsos', 'Falsos cognatos'], ['verbos', 'Verbos'], ['frases', 'Frases'], ['sons', 'Sons difíceis']];
+let filtro = 'todos';
+function renderDict() {
+  document.getElementById('dict-filter').innerHTML = FILTROS.map(([k, t]) => '<button class="chip' + (k === filtro ? ' active' : '') + '" onclick="filtro=\'' + k + '\';renderDict()">' + t + '</button>').join('');
+  document.getElementById('dict-list').innerHTML = DICT.filter(d => filtro === 'todos' || d[0] === filtro).map(d =>
+    '<div class="dict-item"><div><strong>' + esc(d[1]) + '</strong><br><span class="small">' + esc(d[2]) + '</span></div>' +
+    '<button class="play" aria-label="Ouvir ' + esc(d[1]) + '" onclick="falar(\'' + d[1].replace(/'/g, "\\'") + '\')">▶</button></div>').join('');
+}
+function vozES() {
+  const vs = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+  return vs.find(v => /^es(-|_)ES/i.test(v.lang)) || vs.find(v => /^es/i.test(v.lang));
+}
+function falar(t) {
+  try {
+    if (!window.speechSynthesis) { alert('Este navegador não fala em voz alta. Tente no Chrome.'); return; }
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(t); u.lang = 'es-ES'; u.rate = 0.85;
+    const v = vozES(); if (v) u.voice = v;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+function avisoVoz() {
+  const el = document.getElementById('voz-aviso');
+  if (!window.speechSynthesis) { el.textContent = 'Este navegador não tem voz. Use o Chrome.'; return; }
+  el.textContent = vozES() ? '' : 'Se não ouvir sotaque espanhol, instale a voz "Español" nas configurações de voz do celular.';
+}
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = avisoVoz;
+
+/* ---------- tutor ---------- */
+const API_URL = 'https://ingles-em-pilulas-novo.vercel.app/api/chat';
+const KEY_SENHA = 'espanhol-express-senha';
+const SYSTEM = 'Você é um professor de espanhol paciente e animado, ajudando uma estudante brasileira a se preparar para uma prova escolar de espanhol (nível iniciante). Responda SEMPRE em português do Brasil, com no máximo 6 linhas, com 1 ou 2 exemplos em espanhol e a tradução. Temas da prova: artigos e contrações (al/del, lo neutro, el agua), verbos no presente (regulares, ser, estar, tener, ir, hacer, gustar), falsos cognatos e heterogenéricos, muy x mucho, pronomes (usted, possessivos) e conectores (sin embargo, aunque, además, por lo tanto). Se ela pedir exercício, faça uma pergunta por vez e corrija com carinho. Se a pergunta não for sobre espanhol ou estudo, traga a conversa de volta para a prova.';
+const SUGESTOES = ['Muy ou mucho?', 'Ser ou estar?', 'Como funciona o gustar?', 'Me dá um exercício', 'Falsos cognatos'];
+const OFF = [
+  [/muy|mucho/i, 'MUY vai antes de adjetivo ou advérbio: "muy bonita", "muy tarde".\nMUCHO vai antes de substantivo (concordando) ou depois de verbo: "muchos libros", "estudio mucho".\nExceção: mucho mejor, mucho peor, mucho más, mucho menos.'],
+  [/ser|estar/i, 'SER = o que é permanente: origem, profissão, características, hora. "Soy brasileña." "Son las dos."\nESTAR = estado passageiro e lugar. "Estoy feliz hoy." "El libro está en la mesa."'],
+  [/gust/i, 'GUSTAR concorda com a coisa de que se gosta, não com a pessoa:\n"Me gusta el café" (uma coisa) / "Me gustan los gatos" (várias).\nMe, te, le, nos, os, les = a quem agrada.'],
+  [/contra|al |del|artigo|lo /i, 'Só existem 2 contrações: AL (a + el) e DEL (de + el). "Voy al parque." "Vengo del trabajo."\nO artigo neutro LO vem antes de adjetivo: "Lo bueno es que..."'],
+  [/falso|cognat|embaraz|oficina|exquisit/i, 'Os falsos cognatos campeões: embarazada (grávida), exquisito (delicioso), oficina (escritório), rato (momento), apellido (sobrenome), todavía (ainda), zurdo (canhoto), borrar (apagar). Revise a tabela do Módulo 3!'],
+  [/exerc|quest|treino|teste/i, 'Vamos lá! Complete: "Ellas ___ (ser) muy simpáticas."\nResponda e eu corrijo. (Dica: ellas → 3ª pessoa do plural.)'],
+  [/\bson\b/i, '¡Correcto! "Ellas son muy simpáticas." 🎉\nPróxima: "Yo ___ (tener) dos hermanos."'],
+  [/tengo/i, '¡Muy bien! "Yo tengo dos hermanos." 👏\nPróxima: "Me ___ (gustar) las flores."'],
+  [/gustan/i, '¡Perfecto! "Me gustan las flores" — plural, então gustan. Você está pronta! 🏆'],
+  [/conector|sin embargo|aunque|ademas|además/i, 'Conectores: sin embargo (no entanto), aunque (embora), además (além disso), por lo tanto (portanto), mientras (enquanto), sino (mas sim).'],
+  [/usted|pronome|possess/i, 'USTED = senhor/senhora (respeito), conjuga como ele: "¿Usted es profesora?".\nPossessivos: mi, tu, su antes do nome; mío, tuyo, suyo depois: "es mío".'],
+];
+function addMsg(t, quem) {
+  const box = document.getElementById('chat-box');
+  const d = document.createElement('div'); d.className = 'msg ' + quem; d.textContent = t; box.appendChild(d);
+  box.scrollTop = box.scrollHeight; return d;
+}
+let hist = [];
+async function sendChat() {
+  const inp = document.getElementById('chat-input'); const t = inp.value.trim(); if (!t) return;
+  inp.value = ''; addMsg(t, 'user'); hist.push({ role: 'user', content: t }); hist = hist.slice(-16);
+  const senha = localStorage.getItem(KEY_SENHA) || '';
+  const btn = document.getElementById('chat-send'); btn.disabled = true;
+  const pensando = addMsg('...', 'ai');
+  let resp = '';
+  if (senha) {
+    try { resp = await perguntarIA(senha); } catch (e) { resp = ''; pensando.textContent = ''; }
+  }
+  if (!resp) {
+    const m = OFF.find(([re]) => re.test(t));
+    resp = (m ? m[1] : 'Boa pergunta! No modo offline eu sei explicar: muy x mucho, ser x estar, gustar, contrações, falsos cognatos, conectores e usted. Pergunte sobre um deles ou peça "um exercício". 😊') + (senha ? '\n\n(IA on-line não respondeu agora, respondi pelo modo offline.)' : '');
+  }
+  pensando.textContent = resp; hist.push({ role: 'assistant', content: resp }); btn.disabled = false;
+  document.getElementById('chat-box').scrollTop = 1e6;
+}
+async function perguntarIA(senha) {
+  const corpo = { systemInstruction: { parts: [{ text: SYSTEM }] }, contents: hist.map(h => ({ role: h.role === 'assistant' ? 'model' : 'user', parts: [{ text: h.content }] })), generationConfig: { temperature: 0.7, maxOutputTokens: 500 } };
+  for (const modelo of ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.0-flash']) {
+    const r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Senha': senha }, body: JSON.stringify({ prov: 'gemini', modelo, corpo }) });
+    if (r.status === 401) { document.getElementById('key-status').textContent = 'Senha errada.'; return ''; }
+    if (!r.ok) continue;
+    const j = await r.json();
+    const txt = ((((j.candidates || [])[0] || {}).content || {}).parts || []).map(p => p.text || '').join('').trim();
+    if (txt) return txt;
+  }
+  const r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Senha': senha }, body: JSON.stringify({ prov: 'groq', corpo: { messages: [{ role: 'system', content: SYSTEM }, ...hist], max_tokens: 500, temperature: 0.7 } }) });
+  if (r.ok) { const j = await r.json(); return ((((j.choices || [])[0] || {}).message || {}).content || '').trim(); }
+  return '';
+}
+function toggleKey() { const b = document.getElementById('key-box'); b.style.display = b.style.display === 'none' ? 'block' : 'none'; }
+function saveKey() {
+  const v = document.getElementById('api-key').value.trim();
+  try { if (v) localStorage.setItem(KEY_SENHA, v); else localStorage.removeItem(KEY_SENHA); } catch (e) {}
+  document.getElementById('key-status').textContent = v ? 'Senha salva neste aparelho. O tutor agora usa a IA on-line.' : 'Senha apagada. Modo offline.';
+}
+
+/* ---------- início ---------- */
+document.getElementById('tutor-sugestoes').innerHTML = SUGESTOES.map(s => '<button class="chip" onclick="document.getElementById(\'chat-input\').value=\'' + s + '\';sendChat()">' + s + '</button>').join('');
+addMsg('¡Hola! Sou seu tutor de espanhol. Pergunte qualquer dúvida da prova, em português. Ou toque em uma sugestão acima. 😊', 'ai');
+try { document.getElementById('api-key').value = localStorage.getItem(KEY_SENHA) || ''; } catch (e) {}
+renderDict(); avisoVoz(); updateStats(); renderQuiz();
+</script>
+</body>
+</html>
